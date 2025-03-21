@@ -15,8 +15,8 @@ import os
 
 # 🔥 Firebase Setup
 if not firebase_admin._apps:
-    # Convert secret from TOML to JSON-compatible dictionary
-    cred_dict = json.loads(json.dumps(st.secrets["SERVICE_ACCOUNT_KEY"]))
+    # Directly load the secret as a dictionary
+    cred_dict = dict(st.secrets["SERVICE_ACCOUNT_KEY"])
     
     # Create Firebase credentials
     cred = credentials.Certificate(cred_dict)
