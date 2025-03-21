@@ -10,11 +10,21 @@ import hashlib
 from PIL import Image
 import time
 import random
+import json
+import os
 
 # 🔥 Firebase Setup
 if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")
+    # Load credentials from Streamlit secrets
+    cred_dict = st.secrets["SERVICE_ACCOUNT_KEY"]
+    
+    # Create Firebase credentials
+    cred = credentials.Certificate(cred_dict)
+    
+    # Initialize the Firebase app
     firebase_admin.initialize_app(cred)
+
+# Connect to Firestore
 db = firestore.client()
 
 # 🚀 Session State Initialization Function
