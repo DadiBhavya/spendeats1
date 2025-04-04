@@ -10,11 +10,32 @@ import hashlib
 from PIL import Image
 import time
 import random
+import json
+import os
 
 # 🔥 Firebase Setup
 if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")
-    firebase_admin.initialize_app(cred)
+    try:
+        service_account_path = "serviceAccountKey.json"
+        if os.path.exists(service_account_path):
+            with open(service_account_path, "r") as f:
+                cred_dict = json.load(f)
+            st.info("Using local serviceAccountKey.json")
+        else:
+            service_account_key = st.secrets["SERVICE_ACCOUNT_KEY"]
+            if isinstance(service_account_key, str):
+                cred_dict = json.loads(service_account_key)
+            else:
+                cred_dict = dict(service_account_key)
+            st.info("Using secrets from st.secrets")
+
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+        st.success("Firebase initialized successfully!")
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
+        raise
+
 db = firestore.client()
 
 # 🚀 Session State Initialization Function
