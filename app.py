@@ -10,31 +10,11 @@ import hashlib
 from PIL import Image
 import time
 import random
-import json
-import os
 
+# 🔥 Firebase Setup
 if not firebase_admin._apps:
-    try:
-        service_account_path = "serviceAccountKey.json"
-        if os.path.exists(service_account_path):
-            with open(service_account_path, "r") as f:
-                cred_dict = json.load(f)
-            st.info("Using local serviceAccountKey.json")
-        else:
-            service_account_key = st.secrets["SERVICE_ACCOUNT_KEY"]
-            if isinstance(service_account_key, str):
-                cred_dict = json.loads(service_account_key)
-            else:
-                cred_dict = dict(service_account_key)
-            st.info("Using secrets from st.secrets")
-
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred)
-        st.success("Firebase initialized successfully!")
-    except Exception as e:
-        st.error(f"Error: {str(e)}")
-        raise
-
+    cred = credentials.Certificate("serviceAccountKey.json")
+    firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # 🚀 Session State Initialization Function
@@ -69,22 +49,23 @@ initialize_session_state()
 
 # Define base ingredients and their nutritional profiles (simplified)
 base_ingredients = {
-    "rice": {"calories": 130, "protein": 2.7, "carbs": 28, "fats": 0.3, "tags": ["gluten-free"]},
-    "chicken": {"calories": 165, "protein": 31, "carbs": 0, "fats": 3.6, "tags": ["high-protein"]},
-    "mutton": {"calories": 294, "protein": 25, "carbs": 0, "fats": 20, "tags": ["high-protein"]},
-    "wheat": {"calories": 340, "protein": 13, "carbs": 72, "fats": 2.5, "tags": ["high-carb"]},
-    "cheese": {"calories": 403, "protein": 23, "carbs": 3.1, "fats": 33, "tags": ["dairy"]},
-    "tomato": {"calories": 18, "protein": 0.9, "carbs": 3.9, "fats": 0.2, "tags": ["vegan", "vegetarian"]},
-    "pepperoni": {"calories": 504, "protein": 19, "carbs": 1.5, "fats": 46, "tags": ["low-carb"]},
-    "basil": {"calories": 23, "protein": 3, "carbs": 2.7, "fats": 0.6, "tags": ["vegan", "vegetarian"]},
-    "beef": {"calories": 250, "protein": 26, "carbs": 0, "fats": 15, "tags": ["high-protein"]},
-    "lentils": {"calories": 116, "protein": 9, "carbs": 20, "fats": 0.4, "tags": ["vegan", "vegetarian", "high-protein", "gluten-free"]},
-    "spinach": {"calories": 23, "protein": 2.9, "carbs": 3.6, "fats": 0.4, "tags": ["vegan", "vegetarian", "low-carb"]},
-    "paneer": {"calories": 265, "protein": 18, "carbs": 3, "fats": 20, "tags": ["vegetarian", "high-protein", "dairy"]},
-    "potato": {"calories": 77, "protein": 2, "carbs": 17, "fats": 0.1, "tags": ["vegan", "vegetarian", "gluten-free"]},
-    "salmon": {"calories": 206, "protein": 22, "carbs": 0, "fats": 13, "tags": ["high-protein", "low-carb", "keto"]},
-    "olive_oil": {"calories": 884, "protein": 0, "carbs": 0, "fats": 100, "tags": ["vegan", "vegetarian", "keto", "low-carb"]},
-    "mushrooms": {"calories": 22, "protein": 3.1, "carbs": 3.3, "fats": 0.3, "tags": ["vegan", "vegetarian", "low-carb"]}
+    "rice": {"calories": 130, "protein": 2.7, "carbs": 28, "fats": 0.3, "tags": ["gluten-free"], "cost": 15, "category": "base"},
+    "pasta": {"calories": 131, "protein": 5, "carbs": 25, "fats": 1.1, "tags": ["high-carb"], "cost": 16, "category": "base"},
+    "chicken": {"calories": 165, "protein": 31, "carbs": 0, "fats": 3.6, "tags": ["high-protein"], "cost": 20, "category": "protein"},
+    "mutton": {"calories": 294, "protein": 25, "carbs": 0, "fats": 20, "tags": ["high-protein"], "cost": 30, "category": "protein"},
+    "wheat": {"calories": 340, "protein": 13, "carbs": 72, "fats": 2.5, "tags": ["high-carb"], "cost": 14, "category": "base"},
+    "cheese": {"calories": 403, "protein": 23, "carbs": 3.1, "fats": 33, "tags": ["dairy"], "cost": 15, "category": "topping"},
+    "tomato": {"calories": 18, "protein": 0.9, "carbs": 3.9, "fats": 0.2, "tags": ["vegan", "vegetarian"], "cost": 12, "category": "vegetable"},
+    "pepperoni": {"calories": 504, "protein": 19, "carbs": 1.5, "fats": 46, "tags": ["low-carb"], "cost": 25, "category": "protein"},
+    "basil": {"calories": 23, "protein": 3, "carbs": 2.7, "fats": 0.6, "tags": ["vegan", "vegetarian"], "cost": 13, "category": "seasoning"},
+    "beef": {"calories": 250, "protein": 26, "carbs": 0, "fats": 15, "tags": ["high-protein"], "cost": 25, "category": "protein"},
+    "lentils": {"calories": 116, "protein": 9, "carbs": 20, "fats": 0.4, "tags": ["vegan", "vegetarian", "high-protein", "gluten-free"], "cost": 6, "category": "protein"},
+    "spinach": {"calories": 23, "protein": 2.9, "carbs": 3.6, "fats": 0.4, "tags": ["vegan", "vegetarian", "low-carb"], "cost": 23, "category": "vegetable"},
+    "paneer": {"calories": 265, "protein": 18, "carbs": 3, "fats": 20, "tags": ["vegetarian", "high-protein", "dairy"], "cost": 20, "category": "protein"},
+    "potato": {"calories": 77, "protein": 2, "carbs": 17, "fats": 0.1, "tags": ["vegan", "vegetarian", "gluten-free"], "cost": 20, "category": "vegetable"},
+    "salmon": {"calories": 206, "protein": 22, "carbs": 0, "fats": 13, "tags": ["high-protein", "low-carb", "keto"], "cost": 40, "category": "protein"},
+    "olive_oil": {"calories": 884, "protein": 0, "carbs": 0, "fats": 100, "tags": ["vegan", "vegetarian", "keto", "low-carb"], "cost": 10, "category": "seasoning"},
+    "mushrooms": {"calories": 22, "protein": 3.1, "carbs": 3.3, "fats": 0.3, "tags": ["vegan", "vegetarian", "low-carb"], "cost": 15, "category": "vegetable"}
 }
 
 
@@ -946,18 +927,79 @@ def generate_custom_recipe(fitness_goal, dietary_preference, allergies, max_calo
         st.error("No suitable ingredients available based on your past orders and preferences.")
         return None
 
-    # Generate a recipe with 2-4 ingredients
-    num_ingredients = random.randint(2, min(4, len(suitable_ingredients)))
-    selected_ingredients = random.sample(suitable_ingredients, num_ingredients)
+    # Categorize suitable ingredients
+    base_options = [ing for ing in suitable_ingredients if base_ingredients[ing]["category"] == "base"]
+    protein_options = [ing for ing in suitable_ingredients if base_ingredients[ing]["category"] == "protein"]
+    vegetable_options = [ing for ing in suitable_ingredients if base_ingredients[ing]["category"] == "vegetable"]
+    seasoning_options = [ing for ing in suitable_ingredients if base_ingredients[ing]["category"] == "seasoning"]
+    topping_options = [ing for ing in suitable_ingredients if base_ingredients[ing]["category"] == "topping"]
+
+    # Ensure we have at least a base ingredient
+    if not base_options:
+        st.error("No base ingredients available to create a recipe.")
+        return None
+
+    # Select ingredients for the dish
+    selected_ingredients = []
+    cooking_steps = []
+    total_cost = 0
+    total_carbon_footprint = 0
     nutritional_profile = {"calories": 0, "protein": 0, "carbs": 0, "fats": 0, "vitamins": {}}
 
-    # Calculate base nutritional profile
+    # Step 1: Select a base ingredient (e.g., rice, pasta)
+    base = random.choice(base_options)
+    selected_ingredients.append(base)
+    cooking_steps.append(f"Prepare the {base} according to package instructions (e.g., boil the {base} until tender).")
+    total_cost += base_ingredients[base]["cost"]
+    total_carbon_footprint += 0.5
+    for nutrient in ["calories", "protein", "carbs", "fats"]:
+        nutritional_profile[nutrient] += base_ingredients[base][nutrient]
+
+    # Step 2: Add a protein if available and suitable
+    if protein_options and (dietary_preference != "Vegan" or any("vegan" in base_ingredients[ing]["tags"] for ing in protein_options)):
+        protein = random.choice(protein_options)
+        selected_ingredients.append(protein)
+        cooking_steps.append(f"Cook the {protein} (e.g., grill or pan-fry the {protein} until fully cooked).")
+        total_cost += base_ingredients[protein]["cost"]
+        total_carbon_footprint += 0.5
+        for nutrient in ["calories", "protein", "carbs", "fats"]:
+            nutritional_profile[nutrient] += base_ingredients[protein][nutrient]
+
+    # Step 3: Add a vegetable
+    if vegetable_options:
+        vegetable = random.choice(vegetable_options)
+        selected_ingredients.append(vegetable)
+        cooking_steps.append(f"Chop the {vegetable} and sauté it in a pan until tender.")
+        total_cost += base_ingredients[vegetable]["cost"]
+        total_carbon_footprint += 0.5
+        for nutrient in ["calories", "protein", "carbs", "fats"]:
+            nutritional_profile[nutrient] += base_ingredients[vegetable][nutrient]
+
+    # Step 4: Add a seasoning
+    if seasoning_options:
+        seasoning = random.choice(seasoning_options)
+        selected_ingredients.append(seasoning)
+        cooking_steps.append(f"Add the {seasoning} to the pan for flavor.")
+        total_cost += base_ingredients[seasoning]["cost"]
+        total_carbon_footprint += 0.5
+        for nutrient in ["calories", "protein", "carbs", "fats"]:
+            nutritional_profile[nutrient] += base_ingredients[seasoning][nutrient]
+
+    # Step 5: Add a topping if available (e.g., cheese for non-vegan)
+    if topping_options and dietary_preference != "Vegan":
+        topping = random.choice(topping_options)
+        selected_ingredients.append(topping)
+        cooking_steps.append(f"Sprinkle the {topping} on top before serving.")
+        total_cost += base_ingredients[topping]["cost"]
+        total_carbon_footprint += 0.5
+        for nutrient in ["calories", "protein", "carbs", "fats"]:
+            nutritional_profile[nutrient] += base_ingredients[topping][nutrient]
+
+    # Final cooking step
+    cooking_steps.append("Combine all ingredients in a bowl or plate, mix well, and serve hot.")
+
+    # Add vitamins
     for ingredient in selected_ingredients:
-        nutritional_profile["calories"] += base_ingredients[ingredient]["calories"]
-        nutritional_profile["protein"] += base_ingredients[ingredient]["protein"]
-        nutritional_profile["carbs"] += base_ingredients[ingredient]["carbs"]
-        nutritional_profile["fats"] += base_ingredients[ingredient]["fats"]
-        # Add vitamins if applicable (simplified assumption)
         if ingredient in ["tomato", "spinach"]:
             nutritional_profile["vitamins"]["Vitamin C"] = nutritional_profile["vitamins"].get("Vitamin C", 0) + 10
         if ingredient == "salmon":
@@ -968,40 +1010,43 @@ def generate_custom_recipe(fitness_goal, dietary_preference, allergies, max_calo
         scale_factor = max_calories / nutritional_profile["calories"]
         for nutrient in ["calories", "protein", "carbs", "fats"]:
             nutritional_profile[nutrient] *= scale_factor
-    elif fitness_goal == "Muscle Gain" and nutritional_profile["protein"] < 25:
-        # Add a protein-rich ingredient if available
-        protein_rich = [ing for ing in suitable_ingredients if "high-protein" in base_ingredients[ing]["tags"] and ing not in selected_ingredients]
-        if protein_rich:
-            extra_ingredient = random.choice(protein_rich)
-            selected_ingredients.append(extra_ingredient)
-            nutritional_profile["calories"] += base_ingredients[extra_ingredient]["calories"]
-            nutritional_profile["protein"] += base_ingredients[extra_ingredient]["protein"]
-            nutritional_profile["carbs"] += base_ingredients[extra_ingredient]["carbs"]
-            nutritional_profile["fats"] += base_ingredients[extra_ingredient]["fats"]
+        total_cost *= scale_factor
+        total_carbon_footprint *= scale_factor
+    elif fitness_goal == "Muscle Gain" and nutritional_profile["protein"] < 25 and protein_options:
+        protein = random.choice(protein_options)
+        if protein not in selected_ingredients:
+            selected_ingredients.append(protein)
+            cooking_steps.insert(-1, f"Add extra {protein} to increase protein content.")
+            total_cost += base_ingredients[protein]["cost"]
+            total_carbon_footprint += 0.5
+            for nutrient in ["calories", "protein", "carbs", "fats"]:
+                nutritional_profile[nutrient] += base_ingredients[protein][nutrient]
     elif fitness_goal == "General Health":
-        # Ensure balanced macros (e.g., carbs:protein:fats ~ 50:25:25)
         total_macros = nutritional_profile["protein"] + nutritional_profile["carbs"] + nutritional_profile["fats"]
         if total_macros > 0:
             carb_ratio = nutritional_profile["carbs"] / total_macros
             if carb_ratio < 0.4 and "rice" in suitable_ingredients and "rice" not in selected_ingredients:
                 selected_ingredients.append("rice")
-                nutritional_profile["calories"] += base_ingredients["rice"]["calories"]
-                nutritional_profile["protein"] += base_ingredients["rice"]["protein"]
-                nutritional_profile["carbs"] += base_ingredients["rice"]["carbs"]
-                nutritional_profile["fats"] += base_ingredients["rice"]["fats"]
+                cooking_steps.insert(-1, f"Add extra rice to balance the macros.")
+                total_cost += base_ingredients["rice"]["cost"]
+                total_carbon_footprint += 0.5
+                for nutrient in ["calories", "protein", "carbs", "fats"]:
+                    nutritional_profile[nutrient] += base_ingredients["rice"][nutrient]
 
     # Assign tags based on ingredients
     tags = set()
     for ingredient in selected_ingredients:
         tags.update(base_ingredients[ingredient]["tags"])
 
-    # Generate recipe name based on ingredients and goal
+    # Generate a descriptive recipe name
     prefixes = {
         "Weight Loss": "Light",
         "Muscle Gain": "Power",
         "General Health": "Balanced"
     }
-    recipe_name = f"{prefixes[fitness_goal]} {random.choice([ing.capitalize() for ing in selected_ingredients])} {random.choice(['Delight', 'Fusion', 'Special'])}"
+    dish_type = "Pasta" if base == "pasta" else "Stir-Fry" if "protein" in [base_ingredients[ing]["category"] for ing in selected_ingredients] else "Bowl"
+    main_ingredient = next((ing for ing in selected_ingredients if base_ingredients[ing]["category"] in ["protein", "vegetable"]), base)
+    recipe_name = f"{prefixes[fitness_goal]} {main_ingredient.capitalize()} {dish_type}"
 
     custom_recipe = {
         "name": recipe_name,
@@ -1011,11 +1056,13 @@ def generate_custom_recipe(fitness_goal, dietary_preference, allergies, max_calo
         "carbs": round(nutritional_profile["carbs"]),
         "fats": round(nutritional_profile["fats"]),
         "tags": list(tags),
-        "prep_time": sum(base_ingredients[ing]["calories"] * 0.1 for ing in selected_ingredients),  # Rough estimate
-        "vitamins": nutritional_profile["vitamins"]
+        "prep_time": len(selected_ingredients) * 5,  # 5 minutes per ingredient
+        "vitamins": nutritional_profile["vitamins"],
+        "price": round(total_cost * 1.2),  # 20% markup for preparation
+        "carbon_footprint": round(total_carbon_footprint, 1),
+        "instructions": cooking_steps
     }
     return custom_recipe
-
 def save_custom_recipe(fitness_goal, dietary_preference, allergies, max_calories=None):
     recipe = generate_custom_recipe(fitness_goal, dietary_preference, allergies, max_calories)
     if recipe:
@@ -1029,10 +1076,17 @@ def display_custom_recipes():
     if st.session_state["custom_recipes"]:
         st.markdown('<h2 class="text-light">🍳 Personalized Recipes</h2>', unsafe_allow_html=True)
         for recipe in st.session_state["custom_recipes"]:
-            st.markdown(f"**{recipe['name']}**", unsafe_allow_html=True)
+            # Use .get() to handle missing 'price' key
+            price = recipe.get("price", "N/A")
+            st.markdown(f"**{recipe['name']}** - Rs{price}", unsafe_allow_html=True)
             st.write(f"Ingredients: {', '.join(recipe['ingredients'])}")
             st.write(f"Calories: {recipe['calories']} kcal, Protein: {recipe['protein']}g, Carbs: {recipe['carbs']}g, Fats: {recipe['fats']}g")
             st.write(f"Tags: {', '.join(recipe['tags'])}, Prep Time: {recipe['prep_time']} mins")
+            # Handle missing 'instructions' key for older recipes
+            if "instructions" in recipe:
+                st.write("**Preparation Steps (Prepared by SpendEATS):**")
+                for i, step in enumerate(recipe['instructions'], 1):
+                    st.write(f"{i}. {step}")
             st.markdown("---")
     else:
         st.write("No custom recipes yet. Generate one below!")
@@ -1086,8 +1140,13 @@ def generate_meal_schedule(availability, fitness_goal, dietary_preference, aller
         st.error("Please create a diet plan first in the Diet Plan section!")
         return None
 
-    # Get the current day
-    current_day = datetime.now().strftime("%A")  # e.g., "Monday"
+    # --- Change 1: Get the current day and time ---
+    current_datetime = datetime.now()
+    current_day = current_datetime.strftime("%A")  # e.g., "Friday"
+    current_hour = current_datetime.hour
+    current_minute = current_datetime.minute
+    current_time_in_hours = current_hour + current_minute / 60.0  # Convert current time to hours (e.g., 13:30 -> 13.5)
+
     schedule = {current_day: {"Breakfast": None, "Lunch": None, "Dinner": None}}  # Schedule for current day only
 
     available_items = list(menu_items.keys())
@@ -1117,66 +1176,87 @@ def generate_meal_schedule(availability, fitness_goal, dietary_preference, aller
             "Dinner": (18, 21)
         }[meal]
         available = False
+        selected_slot = None
+
+        # Check if the meal can be scheduled in any of the available time slots
         for start, end in availability.get(current_day, []):
+            # Check if the meal time slot overlaps with the availability slot
             if start <= meal_time[0] < end or start < meal_time[1] <= end:
-                available = True
-                break
-        
+                # --- Change 2: Check if the end of the slot is in the future ---
+                if end > current_time_in_hours:
+                    available = True
+                    selected_slot = (start, end)
+                    break
+
         if not available:
+            schedule[current_day][meal] = None
             continue
+
+        # --- Change 3: Check if the meal can be prepared in time ---
+        start, end = selected_slot
+        earliest_possible_start = max(start, current_time_in_hours)
 
         # Prefer items from the diet plan
         preferred_item = st.session_state["diet_plan"].get(meal)
         if preferred_item and preferred_item in available_items:
-            schedule[current_day][meal] = preferred_item
-            available_items.remove(preferred_item)
-            continue
+            prep_time = menu_items[preferred_item]["prep_time"] / 60.0  # Convert prep time to hours
+            # Check if the meal can be prepared and consumed within the slot
+            if earliest_possible_start + prep_time <= end:
+                schedule[current_day][meal] = preferred_item
+                available_items.remove(preferred_item)
+                continue
+            else:
+                st.warning(f"Cannot schedule {meal} with {preferred_item} as preparation time ({menu_items[preferred_item]['prep_time']} mins) exceeds the available time in the slot ({start}:00-{end}:00).")
 
         # Otherwise, select an item that fits the time slot
         for item in available_items[:]:
-            prep_time = menu_items[item]["prep_time"]
-            if prep_time <= (meal_time[1] - meal_time[0]) * 60:
+            prep_time = menu_items[item]["prep_time"] / 60.0  # Convert prep time to hours
+            # Check if the meal can be prepared and consumed within the slot
+            if earliest_possible_start + prep_time <= end:
                 schedule[current_day][meal] = item
                 available_items.remove(item)
                 break
+
         if not schedule[current_day][meal] and available_items:
+            # If no item fits due to prep time, assign the first available item as a fallback
             schedule[current_day][meal] = available_items[0]
             available_items.remove(schedule[current_day][meal])
+            st.warning(f"{meal} scheduled with {schedule[current_day][meal]}, but preparation time may not fit perfectly within the slot ({start}:00-{end}:00).")
 
     return schedule
-
 def save_meal_schedule(availability, fitness_goal, dietary_preference, allergies):
     schedule = generate_meal_schedule(availability, fitness_goal, dietary_preference, allergies)
     if schedule:
+        # Check if any meals were scheduled
+        current_day = list(schedule.keys())[0]
+        meals_scheduled = any(schedule[current_day][meal] for meal in ["Breakfast", "Lunch", "Dinner"])
+        if not meals_scheduled:
+            st.warning("No meals could be scheduled. All available time slots have passed or preparation times exceed the slots. Please adjust your availability.")
+            return schedule
+
         # Flatten the schedule dictionary
-        current_day = list(schedule.keys())[0]  # There's only one day
         firestore_compatible_schedule = {
             f"{current_day}_Breakfast": str(schedule[current_day]["Breakfast"]) if schedule[current_day]["Breakfast"] else "",
             f"{current_day}_Lunch": str(schedule[current_day]["Lunch"]) if schedule[current_day]["Lunch"] else "",
             f"{current_day}_Dinner": str(schedule[current_day]["Dinner"]) if schedule[current_day]["Dinner"] else ""
         }
 
-        # Flatten the availability into a list of strings (e.g., ["20-22", "8-10"])
+        # Flatten the availability into a list of strings
         firestore_compatible_availability_slots = [f"{start}-{end}" for start, end in availability.get(current_day, [])] if availability else []
 
-        # Flatten schedule_preferences into a single-level dictionary
+        # Flatten schedule_preferences
         firestore_compatible_preferences = {
             "fitness_goal": str(fitness_goal) if fitness_goal else "",
             "dietary_preference": str(dietary_preference) if dietary_preference else "",
             "allergies": str(allergies) if allergies else "",
             "availability_day": str(list(availability.keys())[0]) if availability else "",
-            "availability_slots": firestore_compatible_availability_slots  # Now a flat list of strings
+            "availability_slots": firestore_compatible_availability_slots
         }
 
-        # Debug: Log the data being sent to Firestore
-        st.write("Debug - Data being sent to Firestore:")
-        st.write(f"meal_schedule: {firestore_compatible_schedule}")
-        st.write(f"schedule_preferences: {firestore_compatible_preferences}")
-
-        # Save to session state (keep the original nested structure for display purposes)
+        # Save to session state
         st.session_state["meal_schedule"] = schedule
 
-        # Update Firestore with the flattened data
+        # Update Firestore
         user_ref = db.collection("users").where("email", "==", st.session_state["user"]).get()[0].reference
         try:
             user_ref.update({
@@ -1184,16 +1264,28 @@ def save_meal_schedule(availability, fitness_goal, dietary_preference, allergies
                 "schedule_preferences": firestore_compatible_preferences
             })
             st.success("Smart Meal Schedule created successfully for today!")
+            
+            # Add scheduled meals to the cart
+            meals_added = []
+            for meal, item in schedule[current_day].items():
+                if item:  # Only add if a meal is scheduled
+                    item_details = menu_items[item]
+                    price = item_details["price"]
+                    carbon_footprint = item_details["carbon_footprint"]
+                    add_to_cart(item, price, carbon_footprint)
+                    meals_added.append(f"{item} (Rs{price}) for {meal}")
+            
+            # Provide feedback to the user
+            if meals_added:
+                st.success(f"The following meals have been added to your cart: {', '.join(meals_added)}.")
+                if st.button("Go to Cart to Place Order", key="go_to_cart_after_schedule"):
+                    st.session_state["page"] = "Cart"
+                    st.rerun()
+            else:
+                st.info("No meals were scheduled, so nothing was added to the cart.")
+
         except Exception as e:
             st.error(f"Failed to save meal schedule to Firestore: {str(e)}")
-            # Fallback: Try saving the fields separately to isolate the issue
-            try:
-                user_ref.update({"meal_schedule": firestore_compatible_schedule})
-                user_ref.update({"schedule_preferences": firestore_compatible_preferences})
-                st.success("Smart Meal Schedule saved using fallback method!")
-            except Exception as e2:
-                st.error(f"Fallback method also failed: {str(e2)}")
-                st.write("Please check the debug output above to identify the problematic field.")
     return schedule
 
 def display_meal_schedule():
@@ -1209,7 +1301,8 @@ def display_meal_schedule():
                 if item:
                     st.write(f"- {meal}: {item} (Prep Time: {menu_items[item]['prep_time']} mins)")
                 else:
-                    st.write(f"- {meal}: Not scheduled (unavailable time slot)")
+                    # --- Change 4: Update the message to be more specific ---
+                    st.write(f"- {meal}: Not scheduled (time slot has passed or preparation time exceeds available slot)")
         else:
             st.write("No meal schedule set for today. Create one below!")
     else:
@@ -1368,79 +1461,6 @@ if st.session_state["user"] is None:
             else:
                 st.error("Please fill in both email and password fields.")
 
-# Enhanced CSS with Material Icons, Card Styling, and New Layout
-st.markdown("""
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
-    <style>
-    body {
-        font-family: 'Arial', sans-serif;
-        background: url('https://source.unsplash.com/1600x900/?food') no-repeat center center fixed;
-        background-size: cover;
-    }
-    .stApp {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    div[data-testid="stForm"] {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    div[data-testid="stTextInput"] input {
-        border: 2px solid #FF6F61;
-        border-radius: 5px;
-        padding: 8px;
-        background-color: #fff;
-    }
-    div[data-testid="stButton"] button {
-        background: #FF6F61;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-size: 16px;
-        transition: background 0.3s;
-    }
-    div[data-testid="stButton"] button:hover {
-        background: #d35400;
-    }
-    .card {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-        margin: 10px 0;
-    }
-    .sidebar-header {
-        background: #FF6F61;
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-        text-align: center;
-    }
-    .text-light { color: #333; }
-    .header-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-        justify-content: center;
-    }
-    .welcome-text {
-        font-size: 28px;
-        font-weight: bold;
-        color: #FF6F61;
-    }
-    /* Ensure icons are styled correctly */
-    .material-icons {
-        font-family: 'Material Icons' !important;
-        font-size: 18px !important;
-        color: #FF6F61 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Main App Logic (Sidebar Section)
 if st.session_state["user"] is not None:
     with st.sidebar:
         st.markdown('<div class="sidebar-header">SpendEATS</div>', unsafe_allow_html=True)
@@ -1482,26 +1502,24 @@ if st.session_state["user"] is not None:
                         st.session_state["confirmation_dialog"] = {"action": "remove from cart", "item": item}
             if st.button("Place Order", key="cart_place_order_btn"):
                 place_order()
-            calculate_carbon_footprint()
+            total_carbon = sum(details["carbon_footprint"] * details["quantity"] for details in st.session_state["cart"].values())
+            st.write(f"🌍 Total Carbon Footprint: {total_carbon} kg CO2e")
         handle_confirmation()
-    
+
     elif menu_option == "Spending Limit":
         st.markdown('<h2 class="text-light">💰 Set Monthly Spending Limit</h2>', unsafe_allow_html=True)
         current_month = datetime.now().strftime("%Y-%m")
-        # Display current limit and edits left
         if st.session_state["spending_limit"]["set_month"] == current_month and st.session_state["spending_limit"]["Monthly"] > 0:
             st.write(f"Current limit for {current_month}: Rs{st.session_state['spending_limit']['Monthly']}")
             edits_left = 2 - st.session_state["spending_limit_edits_this_month"]
             st.write(f"🛑 You have {edits_left} edit{'s' if edits_left != 1 else ''} left this month.")
         else:
             st.info("Set your spending limit for this month.")
-        # Predictive suggestion
         suggested_limit = predict_spending_limit()
         if suggested_limit > 0:
             st.write(f"📈 Based on your past spending, we suggest a limit of Rs{suggested_limit}.")
         else:
             st.write("📈 No past orders yet. Set a limit to get started!")
-        # Spending limit input and logic
         if st.session_state["spending_limit"]["set_month"] == current_month and st.session_state["spending_limit"]["Monthly"] > 0:
             if (st.session_state["loyalty_points"] == 0 and not st.session_state["badges"] and 
                 st.session_state["spending_limit_edit_count"] == 0):
@@ -1533,12 +1551,10 @@ if st.session_state["user"] is not None:
     elif menu_option == "Nutrition Tracker":
         st.markdown('<h2 class="text-light">🍽 Calorie & Nutritional Tracker</h2>', unsafe_allow_html=True)
         st.subheader("Log a Meal")
-        menu_items_list = ["Chicken Biryani", "Mutton Biryani", "Pizza", "Burger", "Pepperoni", "Margherita"]
-        item = st.selectbox("Select Item", menu_items_list, key="nutrition_log_item")
+        item = st.selectbox("Select Item", list(menu_items.keys()), key="nutrition_log_item")
         quantity = st.number_input("Quantity", min_value=1, value=1, key="nutrition_log_quantity")
         if st.button("Log Meal", key="nutrition_log_meal_btn"):
             log_meal(item, quantity)
-        
         st.subheader("Meal Logs")
         if st.session_state["meal_logs"]:
             for log in st.session_state["meal_logs"]:
@@ -1547,7 +1563,6 @@ if st.session_state["user"] is not None:
                 st.markdown("---")
         else:
             st.write("No meals logged yet.")
-        
         st.subheader("Nutritional Summary")
         summary = get_nutritional_summary()
         st.write(f"Total Calories: {summary['calories']} kcal")
@@ -1555,7 +1570,7 @@ if st.session_state["user"] is not None:
         st.write(f"Total Carbs: {summary['carbs']}g")
         st.write(f"Total Fats: {summary['fats']}g")
         st.write(f"Vitamins: {', '.join([f'{k}: {v}' for k, v in summary['vitamins'].items()])}")
-    
+
     elif menu_option == "Diet Plan":
         st.markdown('<h2 class="text-light">🥗 Customized Diet Plan</h2>', unsafe_allow_html=True)
         st.subheader("Create Your Diet Plan")
@@ -1564,20 +1579,18 @@ if st.session_state["user"] is not None:
         allergies = st.text_input("Allergies (e.g., nuts, dairy)", key="diet_allergies")
         if st.button("Generate Diet Plan", key="diet_generate_diet_btn"):
             save_diet_plan(fitness_goal, dietary_preference, allergies)
-        
         st.subheader("Your Current Diet Plan")
         if st.session_state["diet_plan"]:
             for meal, item in st.session_state["diet_plan"].items():
                 st.write(f"**{meal}**: {item if item else 'Not assigned'}")
         else:
             st.write("No diet plan set. Create one above!")
-    
+
     elif menu_option == "Menu":
         st.markdown('<h2 class="text-light">📜 Menu</h2>', unsafe_allow_html=True)
         st.subheader("Filter Recipes")
         filter_options = ["Low-Carb", "Keto", "Gluten-Free", "High-Protein", "Low-Sodium", "Vegetarian", "Vegan"]
         selected_filters = st.multiselect("Select Dietary Filters", filter_options, key="menu_recipe_filters")
-        
         filtered_items = menu_items.copy()
         if selected_filters:
             filtered_items = {}
@@ -1590,7 +1603,6 @@ if st.session_state["user"] is not None:
                         break
                 if include_item:
                     filtered_items[item] = details
-        
         if not filtered_items:
             st.warning("No items match your filters. Try adjusting your selection.")
         else:
@@ -1607,12 +1619,10 @@ if st.session_state["user"] is not None:
                     if st.button(f"Add to Favorites", key=f"menu_favorite_{item}"):
                         if item not in st.session_state["favorites"]:
                             st.session_state["favorites"].append(item)
-                            user_ref = db.collection("users").where("email", "==", st.session_state["user"]).get()[0].reference
-                            user_ref.update({"favorites": st.session_state["favorites"]})
                             st.success(f"{item} added to Favorites!")
                         else:
                             st.warning(f"{item} is already in Favorites!")
-    
+
     elif menu_option == "Favorites":
         st.markdown('<h2 class="text-light">⭐ Favorites</h2>', unsafe_allow_html=True)
         if st.session_state["favorites"]:
@@ -1626,15 +1636,15 @@ if st.session_state["user"] is not None:
         else:
             st.write("No favorite items yet. Add items from the Menu page!")
         handle_confirmation()
-    
+
     elif menu_option == "Order History":
         display_order_history_summary()
-    
+
     elif menu_option == "Recommendations":
         st.markdown('<h2 class="text-light">🤖 Recommendations</h2>', unsafe_allow_html=True)
         recommendation = get_ai_recommendation()
         st.write(recommendation)
-    
+
     elif menu_option == "Profile":
         st.markdown('<h2 class="text-light">👤 Profile</h2>', unsafe_allow_html=True)
         st.write(f"Email: {st.session_state['user']}")
@@ -1643,12 +1653,10 @@ if st.session_state["user"] is not None:
         st.write(f"Badges: {', '.join(st.session_state['badges'])}")
         if st.button("Simulate Payment", key="profile_pay_btn"):
             st.success("Payment of $10 processed via Stripe! (Mock)")
-    
+
     elif menu_option == "Chatbot":
         st.markdown('<h2 class="text-light">🤖 SpendEATS Chatbot</h2>', unsafe_allow_html=True)
         st.write("Ask me anything about SpendEATS! Use the dropdown to explore common questions or type your query below.")
-
-        # Subcategories and their queries
         chatbot_subcategories = {
             "Menu and Food Options": {
                 "what are today's special dishes": "Today's specials are Chicken Biryani and Pizza! Would you like to add any to your cart?",
@@ -1708,16 +1716,8 @@ if st.session_state["user"] is not None:
                 "bye": "Goodbye! Visit SpendEATS again soon!"
             }
         }
-
-        # Dropdown for subcategories
         st.markdown('<div class="text-light">Explore Common Questions by Category</div>', unsafe_allow_html=True)
-        selected_subcategory = st.selectbox(
-            "",
-            list(chatbot_subcategories.keys()),
-            key="chatbot_subcategory_dropdown"
-        )
-
-        # Display queries for the selected subcategory
+        selected_subcategory = st.selectbox("", list(chatbot_subcategories.keys()), key="chatbot_subcategory_dropdown")
         st.subheader(f"Questions in {selected_subcategory}")
         for query in chatbot_subcategories[selected_subcategory]:
             if st.button(query, key=f"chatbot_query_{query}"):
@@ -1725,8 +1725,6 @@ if st.session_state["user"] is not None:
                 response = get_mock_response(query)
                 st.session_state["chat_history"].append(("Bot", response))
                 st.rerun()
-
-        # Custom user input for chatbot
         user_input = st.text_input("Or type your question here:", key="chatbot_user_input")
         if st.button("Ask", key="chatbot_ask_btn"):
             if user_input:
@@ -1734,15 +1732,13 @@ if st.session_state["user"] is not None:
                 response = get_mock_response(user_input)
                 st.session_state["chat_history"].append(("Bot", response))
                 st.rerun()
-
-        # Display chat history
         st.subheader("Chat History")
         if st.session_state["chat_history"]:
             for sender, message in st.session_state["chat_history"]:
                 st.write(f"**{sender}:** {message}")
         else:
             st.write("No chat history yet. Ask a question to get started!")
-    
+
     elif menu_option == "Reviews":
         st.markdown('<h2 class="text-light">📝 Reviews & Ratings</h2>', unsafe_allow_html=True)
         st.subheader("Submit a Review")
@@ -1767,12 +1763,8 @@ if st.session_state["user"] is not None:
     elif menu_option == "Smart Meal Scheduler":
         st.markdown('<h2 class="text-light">📅 Smart Meal Scheduler</h2>', unsafe_allow_html=True)
         st.subheader("Set Your Availability for Today")
-        
-        # Get the current day
         current_day = datetime.now().strftime("%A")
         availability = {}
-        
-        # Display the current day
         st.write(f"**{current_day}**")
         num_slots = st.number_input(f"Number of available time slots for today ({current_day})", min_value=0, max_value=5, value=0, key=f"scheduler_slots_{current_day}")
         day_slots = []
@@ -1787,35 +1779,64 @@ if st.session_state["user"] is not None:
             else:
                 st.error(f"End time must be greater than start time for {current_day} slot {i+1}.")
         availability[current_day] = day_slots
-
         st.subheader("Preferences")
         fitness_goal = st.selectbox("Fitness Goal", ["Weight Loss", "Muscle Gain", "General Health"], key="scheduler_fitness_goal")
         dietary_preference = st.selectbox("Dietary Preference", ["None", "Vegetarian", "Vegan"], key="scheduler_dietary_preference")
         allergies = st.text_input("Allergies (e.g., nuts, dairy)", key="scheduler_allergies")
-
         if st.button("Generate Meal Schedule for Today", key="scheduler_generate_btn"):
             save_meal_schedule(availability, fitness_goal, dietary_preference, allergies)
-
         st.subheader("Your Meal Schedule for Today")
         display_meal_schedule()
 
     elif menu_option == "Personalized Recipe Generator":
         st.markdown('<h2 class="text-light">🍳 Personalized Recipe Generator</h2>', unsafe_allow_html=True)
-        st.subheader("Generate a Custom Recipe")
-        fitness_goal = st.selectbox("Fitness Goal", ["Weight Loss", "Muscle Gain", "General Health"], key="recipe_fitness_goal")
-        dietary_preference = st.selectbox("Dietary Preference", ["None", "Vegetarian", "Vegan"], key="recipe_dietary_preference")
-        allergies = st.text_input("Allergies (e.g., nuts, dairy)", key="recipe_allergies")
-        max_calories = None
-        if fitness_goal == "Weight Loss":
-            max_calories = st.number_input("Maximum Calories", min_value=100, value=500, key="recipe_max_calories")
-
-        if st.button("Generate Recipe", key="recipe_generate_btn"):
-            save_custom_recipe(fitness_goal, dietary_preference, allergies, max_calories)
-
-        st.subheader("Your Custom Recipes")
+        for recipe in st.session_state["custom_recipes"]:
+            if "price" not in recipe or "carbon_footprint" not in recipe:
+                total_cost = 0
+                total_carbon_footprint = 0
+                for ingredient in recipe["ingredients"]:
+                    if ingredient in base_ingredients:
+                        total_cost += base_ingredients[ingredient]["cost"]
+                        total_carbon_footprint += 0.5
+                recipe["price"] = round(total_cost * 1.2)
+                recipe["carbon_footprint"] = round(total_carbon_footprint, 1)
+            recipe["prep_time"] = len(recipe["ingredients"]) * 5
+            cooking_steps = []
+            base = next((ing for ing in recipe["ingredients"] if base_ingredients[ing]["category"] == "base"), None)
+            if base:
+                cooking_steps.append(f"Prepare the {base} according to package instructions (e.g., boil the {base} until tender).")
+            protein = next((ing for ing in recipe["ingredients"] if base_ingredients[ing]["category"] == "protein"), None)
+            if protein:
+                cooking_steps.append(f"Cook the {protein} (e.g., grill or pan-fry the {protein} until fully cooked).")
+            vegetable = next((ing for ing in recipe["ingredients"] if base_ingredients[ing]["category"] == "vegetable"), None)
+            if vegetable:
+                cooking_steps.append(f"Chop the {vegetable} and sauté it in a pan until tender.")
+            cooking_steps.append("Combine all ingredients in a bowl or plate, mix well, and serve hot.")
+            recipe["instructions"] = cooking_steps
+            prefixes = {"Weight Loss": "Light", "Muscle Gain": "Power", "General Health": "Balanced"}
+            fitness_goal = "General Health"
+            if "low-calorie" in recipe["tags"]:
+                fitness_goal = "Weight Loss"
+            elif "high-protein" in recipe["tags"]:
+                fitness_goal = "Muscle Gain"
+            dish_type = "Bowl"
+            if base == "pasta":
+                dish_type = "Pasta"
+            elif protein:
+                dish_type = "Stir-Fry"
+            main_ingredient = next((ing for ing in recipe["ingredients"] if base_ingredients[ing]["category"] in ["protein", "vegetable"]), recipe["ingredients"][0])
+            recipe["name"] = f"{prefixes[fitness_goal]} {main_ingredient.capitalize()} {dish_type}"
         display_custom_recipes()
+        with st.form("custom_recipe_form"):
+            fitness_goal = st.selectbox("Fitness Goal", ["Weight Loss", "Muscle Gain", "General Health"])
+            dietary_preference = st.selectbox("Dietary Preference", ["None", "Vegetarian", "Vegan"])
+            allergies = st.text_input("Allergies (comma-separated)", placeholder="e.g., nuts, dairy")
+            max_calories = st.number_input("Max Calories (optional)", min_value=0, value=0, step=50)
+            generate_recipe = st.form_submit_button("Generate Recipe")
+            if generate_recipe:
+                max_calories = max_calories if max_calories > 0 else None
+                save_custom_recipe(fitness_goal, dietary_preference, allergies, max_calories)
 
-    # Popup for spending limit exceeded
     if st.session_state["show_popup"]:
         with st.container():
             st.markdown("## ⚠ Spending Limit Exceeded!")
