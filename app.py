@@ -1411,7 +1411,19 @@ def handle_confirmation():
                     st.success(f"Order placed! Carbon Footprint: {total_carbon} kg CO2e")
                     st.info("🎉 Order confirmation sent!")
                     st.session_state["confirmation_dialog"] = None
+        elif action == "remove from cart" and item:
+            st.markdown(f"**Confirm Action**: Are you sure you want to remove {item} from cart?")
+            unique_id = f"{action}_{item}_{int(time.time())}"
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Yes", key=f"confirm_{unique_id}"):
+                    remove_from_cart(item)
+                    st.session_state["confirmation_dialog"] = None
                     st.rerun()
+            with col2:
+                if st.button("No", key=f"cancel_{unique_id}"):
+                    st.session_state["confirmation_dialog"] = None
+                    st.rerun()            
         # Rest of the function remains unchanged for other actions
         elif action == "remove from favorites" and item:
             st.markdown(f"**Confirm Action**: Are you sure you want to remove {item} from favorites?")
