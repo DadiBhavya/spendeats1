@@ -38,6 +38,20 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
+# Function to calculate total spent
+def calculate_total_spent():
+    if st.session_state["user"]:
+        current_month = datetime.now().strftime("%Y-%m")  # e.g., "2025-04"
+        orders_ref = db.collection("orders").where("user_id", "==", st.session_state["user"]).stream()
+        monthly_total = 0
+        for order in orders_ref:
+            order_dict = order.to_dict()
+            order_date = order_dict.get("date", datetime.now().strftime("%Y-%m-%d"))
+            if order_date.startswith(current_month):  # Only include orders from the current month
+                monthly_total += order_dict.get("price", 0)
+        return monthly_total  # Return total spent for the current month
+    return 0
+    
 # 🚀 Session State Initialization Function
 def initialize_session_state():
     default_state = {
@@ -426,19 +440,6 @@ def predict_spending_limit():
         # Suggest a slightly higher limit to account for variability (e.g., +10%)
         suggested_limit = int(median_spend * 1.1)
         return suggested_limit
-    return 0
-
-def calculate_total_spent():
-    if st.session_state["user"]:
-        current_month = datetime.now().strftime("%Y-%m")  # e.g., "2025-04"
-        orders_ref = db.collection("orders").where("user_id", "==", st.session_state["user"]).stream()
-        monthly_total = 0
-        for order in orders_ref:
-            order_dict = order.to_dict()
-            order_date = order_dict.get("date", datetime.now().strftime("%Y-%m-%d"))
-            if order_date.startswith(current_month):  # Only include orders from the current month
-                monthly_total += order_dict.get("price", 0)
-        return monthly_total  # Return total spent for the current month
     return 0
 
 def check_spending_limit():
