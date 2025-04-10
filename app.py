@@ -270,7 +270,7 @@ def load_user_data(email, user_data):
                     "spending_limit_edits_this_month": 0
                 })
         st.session_state["spending_limit"] = spending_limit_data  
-        st.session_state["total_spent"] = calculate_total_spent()  # Update total_spent here
+        st.session_state["total_spent"] = calculate_total_spent()  # Update monthly total spent
     except Exception as e:
         st.error(f"An error occurred while loading user data: {str(e)}")
 
