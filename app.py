@@ -46,7 +46,7 @@ def initialize_session_state():
         "cart": {},
         "page": "Menu",
         "spending_limit": {"Monthly": 0, "set_month": None},
-        "total_spent": 0,
+        "total_spent": calculate_total_spent(),  # Calculate total spent on initialization
         "loyalty_points": 0,
         "badges": [],
         "show_popup": False,
@@ -61,7 +61,6 @@ def initialize_session_state():
         "custom_recipes": [],
         "confirmation_dialog": None
     }
-    # Overwrite all keys in session_state with defaults
     for key, value in default_state.items():
         if key not in st.session_state:
             st.session_state[key] = value
@@ -270,6 +269,7 @@ def load_user_data(email, user_data):
                     "spending_limit_edits_this_month": 0
                 })
         st.session_state["spending_limit"] = spending_limit_data  
+        st.session_state["total_spent"] = calculate_total_spent()  # Update total_spent here
     except Exception as e:
         st.error(f"An error occurred while loading user data: {str(e)}")
 
@@ -380,6 +380,7 @@ def place_order():
                 "carbon_footprint": details["carbon_footprint"] * details["quantity"]
             })
         st.session_state["cart"] = {}
+        st.session_state["total_spent"] = calculate_total_spent()  # Update total_spent after placing the order
         check_spending_limit()  # Recheck after placing the order
         st.success(f"Order placed! Carbon Footprint: {total_carbon} kg CO2e")
         st.info("🎉 Order confirmation sent!")
