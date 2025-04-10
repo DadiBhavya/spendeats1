@@ -38,20 +38,6 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# Function to calculate total spent
-def calculate_total_spent():
-    if st.session_state["user"]:
-        current_month = datetime.now().strftime("%Y-%m")  # e.g., "2025-04"
-        orders_ref = db.collection("orders").where("user_id", "==", st.session_state["user"]).stream()
-        monthly_total = 0
-        for order in orders_ref:
-            order_dict = order.to_dict()
-            order_date = order_dict.get("date", datetime.now().strftime("%Y-%m-%d"))
-            if order_date.startswith(current_month):  # Only include orders from the current month
-                monthly_total += order_dict.get("price", 0)
-        return monthly_total  # Return total spent for the current month
-    return 0
-    
 # 🚀 Session State Initialization Function
 def initialize_session_state():
     default_state = {
@@ -60,7 +46,7 @@ def initialize_session_state():
         "cart": {},
         "page": "Menu",
         "spending_limit": {"Monthly": 0, "set_month": None},
-        "total_spent": calculate_total_spent(),  # Calculate total spent on initialization
+        "total_spent": calculate_total_spent(),  # This will now return 0 if no user
         "loyalty_points": 0,
         "badges": [],
         "show_popup": False,
@@ -78,6 +64,7 @@ def initialize_session_state():
     for key, value in default_state.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
 # Initialize session state at the start
 initialize_session_state()
 
@@ -442,6 +429,20 @@ def predict_spending_limit():
         return suggested_limit
     return 0
 
+def calculate_total_spent():
+    user = st.session_state.get("user")  # Use get() to avoid KeyError if "user" is not set
+    if user:
+        current_month = datetime.now().strftime("%Y-%m")  # e.g., "2025-04"
+        orders_ref = db.collection("orders").where("user_id", "==", user).stream()
+        monthly_total = 0
+        for order in orders_ref:
+            order_dict = order.to_dict()
+            order_date = order_dict.get("date", datetime.now().strftime("%Y-%m-%d"))
+            if order_date.startswith(current_month):  # Only include orders from the current month
+                monthly_total += order_dict.get("price", 0)
+        return monthly_total  # Return total spent for the current month
+    return 0  # Return 0 if no user is logged in
+    
 def check_spending_limit():
     monthly_total_spent = calculate_total_spent()  # Get total spent for the current month
     monthly_limit = st.session_state["spending_limit"].get("Monthly", 0)
