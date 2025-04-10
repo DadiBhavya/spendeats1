@@ -46,7 +46,6 @@ def initialize_session_state():
         "cart": {},
         "page": "Menu",
         "spending_limit": {"Monthly": 0, "set_month": None},
-        "total_spent": calculate_total_spent(),  # This will now return 0 if no user
         "loyalty_points": 0,
         "badges": [],
         "show_popup": False,
@@ -1687,7 +1686,6 @@ if st.session_state["user"] is not None:
     elif menu_option == "Profile":
         st.markdown('<h2 class="text-light">👤 Profile</h2>', unsafe_allow_html=True)
         st.write(f"Email: {st.session_state['user']}")
-        st.write(f"Total Spent: Rs{st.session_state['total_spent']}")
         st.write(f"Loyalty Points: {st.session_state['loyalty_points']}")
         st.write(f"Badges: {', '.join(st.session_state['badges'])}")
         if st.button("Simulate Payment", key="profile_pay_btn"):
