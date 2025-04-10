@@ -1514,7 +1514,6 @@ if st.session_state["user"] is not None:
         )
         if st.button("Logout", key="logout_btn"):
             logout()
-        st.markdown(f'<div class="text-light">💰 Total Spent: Rs{st.session_state["total_spent"]}</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="text-light">🎖 Points: {st.session_state["loyalty_points"]}</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="text-light">🏅 Badges: {", ".join(st.session_state["badges"])}</div>', unsafe_allow_html=True)
 
