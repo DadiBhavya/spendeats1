@@ -4,7 +4,7 @@
 
 ---
 
-## 📌 Overview
+##  Overview
 
 **SpendEATS** is a feature-rich food ordering platform built with **Streamlit** and **Firebase**. It goes beyond a typical food app by combining meal planning, nutritional tracking, spending management, and personalized recipe generation — helping users make healthier and more budget-conscious food choices.
 
@@ -41,7 +41,7 @@
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### 1. Clone the Repository
 
@@ -187,9 +187,6 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ---
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
 
 ---
 
