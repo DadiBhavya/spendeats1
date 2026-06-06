@@ -10,7 +10,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---|---|
@@ -30,7 +30,7 @@
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Frontend**: [Streamlit](https://streamlit.io/)
 - **Backend / Database**: [Firebase Firestore](https://firebase.google.com/docs/firestore)
@@ -113,7 +113,7 @@ streamlit run app.py
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 spendeats/
@@ -128,7 +128,7 @@ spendeats/
 
 ---
 
-## 🔒 Security Notice
+## Security Notice
 
 > ⚠️ **Never commit `serviceAccountKey.json` to your repository.**
 
@@ -141,7 +141,7 @@ serviceAccountKey.json
 
 ---
 
-## 🧠 How Key Features Work
+## How Key Features Work
 
 ### Spending Limit System
 - First edit is free for new users.
@@ -164,7 +164,7 @@ serviceAccountKey.json
 
 ---
 
-## 🌐 Deployment
+## Deployment
 
 Deploy easily on **Streamlit Community Cloud**:
 
@@ -175,7 +175,7 @@ Deploy easily on **Streamlit Community Cloud**:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change.
 
